@@ -1,11 +1,23 @@
 const express = require("express");
 const path = require("path");
-const sequelize = require("./utils/dbconnection");
+const sequelize = require("./dbconnection");
+const graphqlHTTP = require("express-graphql");
+const schema = require("./graphql/schema");
+const resolver = require("./graphql/resolver");
 
 const app = express();
+
+app.use(
+  "/graphql",
+  graphqlHTTP({
+    schema: schema,
+    rootValue: resolver,
+    graphiql: true,
+  })
+);
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/api", require("./routes/todo"));
 app.use((req, res, next) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -20,4 +32,4 @@ async function start() {
 
 start();
 const PORT = process.env.PORT || 3000;
-app.listen(PORT);
+app.listen(PORT, () => console.log("Now browse to localhost:3000/graphql"));

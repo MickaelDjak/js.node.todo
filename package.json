@@ -20,6 +20,8 @@
   "homepage": "https://github.com/MickaelDjak/js.node.todo#readme",
   "dependencies": {
     "express": "^4.17.1",
+    "express-graphql": "^0.9.0",
+    "graphql": "^15.0.0",
     "mysql2": "^2.1.0",
     "sequelize": "^5.21.7"
   },

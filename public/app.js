@@ -11,10 +11,29 @@ new Vue({
   },
   mounted() {
     try {
-      fetch("/api/")
+      fetch("/graphql/", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          query: `
+        query {
+          getTodos {
+            id
+            title
+            done
+            createdAt
+            updatedAt
+          }
+        }
+        `,
+        }),
+      })
         .then((res) => res.json())
-        .then((todos) => {
-          this.todos = todos;
+        .then((response) => {
+          this.todos = response.data.getTodos;
         });
     } catch (e) {
       console.error(e);
@@ -24,19 +43,30 @@ new Vue({
     addTodo() {
       try {
         const title = this.todoTitle.trim();
+
         if (!title) return;
-        fetch("/api/", {
+
+        fetch("/graphql/", {
           method: "post",
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
           body: JSON.stringify({
-            title,
+            query: `mutation {
+              createTodo(todo: {title: "${title}"}) {
+                id
+                title
+                done
+                createdAt
+                updatedAt
+              }
+            }`,
           }),
         })
           .then((res) => res.json())
-          .then(({ todo }) => {
-            this.todos.push(todo);
+          .then((response) => {
+            this.todos.push(response.data.createTodo);
             this.todoTitle = "";
           });
       } catch (e) {
@@ -46,21 +76,27 @@ new Vue({
     completeTodo(id) {
       try {
         const index = this.todos.findIndex((t) => t.id === id);
-        const isDone = !!this.todos[index].done;
+        const state = !!this.todos[index].done;
 
-        fetch(`/api/${id}`, {
-          method: "put",
+        fetch("/graphql/", {
+          method: "post",
           headers: {
             "Content-Type": "application/json",
+            Accept: "application/json",
           },
           body: JSON.stringify({
-            done: isDone,
+            query: `mutation {
+              togleTodo(id: ${id}, state: ${state}) {
+                done
+                updatedAt
+              }
+            }`,
           }),
         })
           .then((res) => res.json())
-          .then(({ todo }) => {
-            this.todos[index].done = isDone;
-            this.todos[index].updatedAt = todo.updatedAt;
+          .then((response) => {
+            this.todos[index].done = response.data.createTodo.done;
+            this.todos[index].updatedAt = response.data.createTodo.updatedAt;
           });
       } catch (e) {
         console.error(e);
@@ -68,8 +104,17 @@ new Vue({
     },
     removeTodo(id) {
       try {
-        fetch(`/api/${id}`, {
-          method: "delete",
+        fetch("/graphql/", {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            query: `mutation {
+              deleteTodo(id: ${id}) 
+            }`,
+          }),
         }).then(() => {
           this.todos = this.todos.filter((t) => t.id !== id);
         });
@@ -95,7 +140,9 @@ new Vue({
         option.second = "2-digit";
       }
 
-      return new Intl.DateTimeFormat("en-En", option).format(new Date(value));
+      return new Intl.DateTimeFormat("en-En", option).format(
+        new Date(value * 1000)
+      );
     },
   },
   created() {

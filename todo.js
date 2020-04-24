@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize");
-const sequelize = require("./../utils/dbconnection");
+const sequelize = require("./dbconnection");
 
 const todo = sequelize.define("Todo", {
   id: {
