@@ -2,8 +2,8 @@ const express = require("express");
 const path = require("path");
 const sequelize = require("./dbconnection");
 const graphqlHTTP = require("express-graphql");
-const schema = require("./graphql/schema");
-const resolver = require("./graphql/resolver");
+const schema = require("./graphSchema");
+const resolver = require("./graphResolver");
 
 const app = express();
 

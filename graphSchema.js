@@ -1,6 +1,6 @@
 const { buildSchema } = require("graphql");
 
-const schema = buildSchema(`
+module.exports = buildSchema(`
   type Todo {
     id: ID!
     title: String!
@@ -23,5 +23,3 @@ const schema = buildSchema(`
     deleteTodo(id: ID!): Boolean
   }
 `);
-
-module.exports = schema;
